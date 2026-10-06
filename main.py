@@ -1,32 +1,35 @@
-from flask import Flask, request, Response
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-# Mudando para responder texto puro na raiz ('/'), imitando um arquivo de configuração (.txt)
+# Nova tentativa na raiz com a estrutura JSON completa de SDKs mobile
 @app.route('/', methods=['GET', 'POST', 'HEAD'])
 def home():
-    # Estrutura padrão de arquivo VersionList para checagem da Unity
-    text_data = (
-        "version=1.0.795\n"
-        "force_update=false\n"
-        "server_status=1\n"
-        "download_url=\n"
-    )
-    # Enviamos como 'text/plain' para o jogo ler as linhas diretamente
-    return Response(text_data, mimetype='text/plain')
+    return jsonify({
+        "code": 0,          # Muitas vezes 0 significa 'Sucesso' em APIs asiáticas
+        "message": "success",
+        "msg": "success",
+        "data": {
+            "version": "1.0.795",
+            "force_update": 0,
+            "force": False,
+            "status": 1,
+            "server_status": 1,
+            "download_url": "",
+            "update_url": ""
+        }
+    })
 
-# Deixamos essa rota caso ele busque em formato JSON em outro momento
+# Mantendo as rotas alternativas por precaução
 @app.route('/sdk_service', methods=['GET', 'POST'])
 @app.route('/sdk_service/', methods=['GET', 'POST'])
 def sdk_service():
-    from flask import jsonify
     return jsonify({
-        "code": 200,
+        "code": 0,
         "msg": "success",
         "data": {
-            "version": "1.0.795", 
-            "force_update": False,
-            "download_url": "",
+            "version": "1.0.795",
+            "force_update": 0,
             "server_status": 1
         }
     })
