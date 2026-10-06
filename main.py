@@ -1,35 +1,23 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request
 
 app = Flask(__name__)
 
-# Nova tentativa na raiz com a estrutura JSON completa de SDKs mobile
+# Respondendo apenas 'success' em texto puro na raiz, comum para pings de validação
 @app.route('/', methods=['GET', 'POST', 'HEAD'])
 def home():
-    return jsonify({
-        "code": 0,          # Muitas vezes 0 significa 'Sucesso' em APIs asiáticas
-        "message": "success",
-        "msg": "success",
-        "data": {
-            "version": "1.0.795",
-            "force_update": 0,
-            "force": False,
-            "status": 1,
-            "server_status": 1,
-            "download_url": "",
-            "update_url": ""
-        }
-    })
+    # Se o jogo aceitar apenas a confirmação de que o link está ativo
+    return "success"
 
-# Mantendo as rotas alternativas por precaução
+# Se ele ignorar a raiz e passar a pedir o arquivo de versão em JSON depois
 @app.route('/sdk_service', methods=['GET', 'POST'])
 @app.route('/sdk_service/', methods=['GET', 'POST'])
 def sdk_service():
+    from flask import jsonify
     return jsonify({
         "code": 0,
         "msg": "success",
         "data": {
             "version": "1.0.795",
-            "force_update": 0,
             "server_status": 1
         }
     })
