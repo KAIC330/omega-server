@@ -1,37 +1,32 @@
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, request, Response, make_response
 import sys
 
 app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST', 'HEAD'])
 def home():
-    # Print de diagnóstico para acompanhar no painel do Render
-    print("=== REQUISIÇÃO RECEBIDA DE VERSÃO ===", file=sys.stderr)
+    print("=== ENVIANDO RESPOSTA DE TEXTO PURA ===", file=sys.stderr)
     
-    # Captura os códigos de segurança enviados pelo cabeçalho do celular
+    # Captura a chave de segurança que o celular enviou
     x_request_start = request.headers.get('X-Request-Start', '')
     
-    # Essa é a estrutura exata e completa exigida por SDKs de jogos Unity
-    json_data = jsonify({
-        "code": 200,             # Código de sucesso interno da API
-        "status": "success",     # Algumas versões checam por status
-        "msg": "success",
-        "message": "success",
-        "version": "1.0.795",    # A versão exata que aparece no canto do seu jogo
-        "data": {
-            "version": "1.0.795",
-            "server_status": 1,   # 1 = Servidor Online
-            "status": 1,
-            "force_update": False,
-            "force": False,
-            "download_url": "",
-            "update_url": ""
-        }
-    })
+    # Formato de texto misto (Variáveis diretas + Chaves internas)
+    # É o padrão definitivo que os injetores de pacotes da Unity leem sem quebrar o JSON
+    raw_text = (
+        "code=0\n"
+        "status=1\n"
+        "msg=success\n"
+        "version=1.0.795\n"
+        "server_status=1\n"
+        "force_update=false\n"
+        "download_url=\n"
+        "update_url=\n"
+    )
     
-    response = make_response(json_data)
+    # Força o Flask a responder como TEXTO PURO (mimetype='text/plain')
+    response = make_response(Response(raw_text, mimetype='text/plain'))
     
-    # Injeta de volta todas as chaves de segurança que o jogo enviou para validar a conexão
+    # Devolve a chave de segurança obrigatória nos cabeçalhos
     if x_request_start:
         response.headers['X-Request-Start'] = x_request_start
         response.headers['X-Request-Sign'] = x_request_start
@@ -39,7 +34,6 @@ def home():
         
     return response
 
-# Rota alternativa caso o jogo tente buscar por pastas após a validação inicial
 @app.route('/sdk_service', methods=['GET', 'POST'])
 @app.route('/sdk_service/', methods=['GET', 'POST'])
 def sdk_service():
